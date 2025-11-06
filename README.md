@@ -7,3 +7,7 @@
 
 ### [secured-web-application](secured-web-application)
 基于模块 unsecured-web-application，使用Spring Security对其进行安全保护，展示基本的认证和授权功能。
+
+默认登录信息
+- 用户名：user
+- 密码：password
