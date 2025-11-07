@@ -1,3 +1,14 @@
 spring:
   application:
     name: custom-sign-up-and-sign-in
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:test-db # In-memory H2 database
+    username: sa # default H2 database username
+    password: '' # default H2 database password
+  h2:
+    console:
+      enabled: true # Enable H2 database console
+      path: /h2-console
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
