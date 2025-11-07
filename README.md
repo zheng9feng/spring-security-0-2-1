@@ -14,7 +14,7 @@
 
 参考 https://spring.io/guides/gs/securing-web Set up Spring Security
 
-默认登录信息
+登录信息
 
 - 用户名：user
 - 密码：password
