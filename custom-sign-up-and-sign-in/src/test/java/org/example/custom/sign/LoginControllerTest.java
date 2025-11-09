@@ -11,9 +11,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-@WebMvcTest(SignInController.class)
+@WebMvcTest(LoginController.class)
 @Import(WebSecurityConfig.class)
-class SignInControllerTest {
+class LoginControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -22,9 +22,9 @@ class SignInControllerTest {
     private UserAccountDetailsService userAccountDetailsService;
 
     @Test
-    void shouldRenderSigninForm() throws Exception {
-        mockMvc.perform(get("/signin"))
+    void shouldRenderLoginForm() throws Exception {
+        mockMvc.perform(get("/login"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("signin"));
+                .andExpect(view().name("login"));
     }
 }

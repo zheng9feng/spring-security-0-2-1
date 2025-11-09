@@ -21,13 +21,13 @@ class WebSecurityConfig {
                 .headers(headers -> headers.frameOptions(
                         HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/signup", "/signin", "/css/**", "/js/**")
+                        .requestMatchers("/signup", "/login", "/css/**", "/js/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
                 .formLogin(form -> form
-                        .loginPage("/signin")
-                        .loginProcessingUrl("/signin")
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
                         .defaultSuccessUrl("/home", true)
                         .permitAll())
                 .logout(withDefaults());
