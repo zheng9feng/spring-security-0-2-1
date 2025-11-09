@@ -42,9 +42,9 @@ Spring Web简单集成Spring Security项目，仅提供一个`/hello`端点。
 #### 功能
 
 - 实现用户注册和登录功能
-- 使用Spring Security进行安全保护
-- 使用Thymeleaf渲染前端页面
-- 使用H2内存数据库存储用户信息
+- 使用 Spring Security 进行安全保护
+- 使用 Thymeleaf 渲染前端页面
+- 使用 H2 内存数据库存储用户信息
 - 密码加密存储
 - 基本的表单验证
 - 登录后重定向到欢迎页面
