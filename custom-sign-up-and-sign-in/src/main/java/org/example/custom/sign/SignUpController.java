@@ -38,7 +38,7 @@ class SignUpController {
         }
         try {
             UserAccount saved = userAccountService.register(form.email(), form.password());
-            signIn(saved, request);
+            login(saved, request);
         } catch (IllegalArgumentException ex) {
             bindingResult.rejectValue("email", "duplicate", ex.getMessage());
             return "signup";
@@ -46,7 +46,7 @@ class SignUpController {
         return "redirect:/home";
     }
 
-    private void signIn(UserAccount saved, HttpServletRequest request) {
+    private void login(UserAccount saved, HttpServletRequest request) {
         UserAccountDetails principal = new UserAccountDetails(saved);
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 principal, null, principal.getAuthorities());
