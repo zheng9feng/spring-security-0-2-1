@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: retrieve-user-from-db
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/spring-security-0-2-1
+    username: root
+    password: root
+  sql:
+    init:
+      schema-locations: classpath:schema.sql
+      mode: always
