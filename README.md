@@ -28,6 +28,20 @@ Spring Web简单集成Spring Security项目，仅提供一个`/hello`端点。
 * 用户名：user
 * 密码：服务启动时自动生成（Using generated security password）
 
+```shell
+# 无认证信息
+curl --url 'http://localhost:8080/hello'
+   
+# 带认证信息
+curl --url 'http://localhost:8080/hello' --user 'user:<generated-password-from-console>'
+
+# 通过发送Basic Auth请求头的方式访问
+# 1. 先将"user:password"进行Base64编码
+echo -n 'user:<generated-password-from-console>' | base64
+# 2. 然后使用编码后的字符串进行访问
+curl --url 'http://localhost:8080/hello' --header 'Authorization: Basic <base64-encoded-credentials>'
+```
+
 ### [custom-sign-up-and-sign-in](custom-sign-up-and-sign-in)
 
 #### 技术栈
