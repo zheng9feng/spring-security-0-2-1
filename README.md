@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS users
     username VARCHAR(255) NOT NULL UNIQUE,
     email    VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL
-    );
+);
 
 -- DML
 insert into users (id, username, email, password)
