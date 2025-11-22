@@ -1,3 +1,5 @@
+
+
 # Spring Security From 0 To 1
 
 ## 核心组件
@@ -117,4 +119,159 @@ public interface UserDetailsService {
 	UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
 
 }
+```
+
+### PasswordEncoder
+
+```java
+package org.springframework.security.crypto.password;
+
+public interface PasswordEncoder {
+
+	/**
+	 * Encode the raw password. Generally, a good encoding algorithm applies a SHA-1 or
+	 * greater hash combined with an 8-byte or greater randomly generated salt.
+	 */
+	String encode(CharSequence rawPassword);
+
+	/**
+	 * Verify the encoded password obtained from storage matches the submitted raw
+	 * password after it too is encoded. Returns true if the passwords match, false if
+	 * they do not. The stored password itself is never decoded.
+	 * @param rawPassword the raw password to encode and match
+	 * @param encodedPassword the encoded password from storage to compare with
+	 * @return true if the raw password, after encoding, matches the encoded password from
+	 * storage
+	 */
+	boolean matches(CharSequence rawPassword, String encodedPassword);
+
+	/**
+	 * Returns true if the encoded password should be encoded again for better security,
+	 * else false. The default implementation always returns false.
+	 * @param encodedPassword the encoded password to check
+	 * @return true if the encoded password should be encoded again for better security,
+	 * else false.
+	 */
+	default boolean upgradeEncoding(String encodedPassword) {
+		return false;
+	}
+
+}
+```
+
+### UserDetailsManager
+
+```java
+package org.springframework.security.provisioning;
+
+public interface UserDetailsManager extends UserDetailsService {
+
+	/**
+	 * Create a new user with the supplied details.
+	 */
+	void createUser(UserDetails user);
+
+	/**
+	 * Update the specified user.
+	 */
+	void updateUser(UserDetails user);
+
+	/**
+	 * Remove the user with the given login name from the system.
+	 */
+	void deleteUser(String username);
+
+	/**
+	 * Modify the current user's password. This should change the user's password in the
+	 * persistent user repository (database, LDAP etc).
+	 * @param oldPassword current password (for re-authentication if required)
+	 * @param newPassword the password to change to
+	 */
+	void changePassword(String oldPassword, String newPassword);
+
+	/**
+	 * Check if a user with the supplied login name exists in the system.
+	 */
+	boolean userExists(String username);
+
+}
+```
+
+
+
+## 集成Spring Security后的默认状态
+
+### 访问所有端点都需要认证
+
+### 默认认证方式
+
+集成 Spring Security 时，如果未调整默认配置，**HTTP Basic** 则是默认的访问认证方式。
+
+> 使用 HTTP Authentication请求头发送认证信息（用户名和密码）
+
+基本格式
+
+`Authentication: Basic <base64(user:password)>`
+
+HTTP/1.1 使用的认证方式
+
+- BASIC 认证（基本认证）
+- DIGEST 认证（摘要认证）
+- SSL 客户端认证
+- FormBase 认证（基于表单认证）
+
+## 修改默认配置
+
+默认暴露端点 `/hello`
+
+### 用户管理
+
+#### 使用存储到内存的用户信息
+
+添加配置类
+
+```java
+@Configuration
+public class UserManagementConfig {
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        var inMemoryUserDetailsManager = new InMemoryUserDetailsManager();
+
+        var userDetails1 = User.withUsername("user1")
+                .password("{noop}password")
+                .authorities("read")
+                .build();
+        var userDetails2 = User.withUsername("user2")
+                // "password" encoded with bcrypt
+                .password("{bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
+                .authorities("read")
+                .build();
+
+        inMemoryUserDetailsManager.createUser(userDetails1);
+        inMemoryUserDetailsManager.createUser(userDetails2);
+
+        return inMemoryUserDetailsManager;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        // alternatively, you can customize DelegatingPasswordEncoder by yourself to support target encodings
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+}
+```
+
+验证
+
+```sh
+curl http://localhost:8080/hello -u user1:password
+curl http://localhost:8080/hello -u user2:password
+```
+
+#### 使用存储在数据库中的用户信息
+
+```sh
+curl http://localhost:8080/hello --user 'Tom:123456'
+curl http://localhost:8080/hello --user 'James:password'
 ```
