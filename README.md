@@ -84,5 +84,5 @@ CREATE TABLE IF NOT EXISTS users
 -- DML
 insert into users (id, username, email, password)
 values (null, 'Tom', 'tom@mail.org', '{noop}123456'),
-       (null, 'James', 'james@mail.org', '{bscypt}{bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG');
+       (null, 'James', 'james@mail.org', '{bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG');
 ```
