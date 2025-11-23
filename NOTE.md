@@ -271,6 +271,11 @@ curl http://localhost:8080/hello -u user2:password
 
 #### 使用存储在数据库中的用户信息
 
+ORM: Spring Data JPA
+
+DB: MySQL 8
+
+
 ```sh
 curl http://localhost:8080/hello --user 'Tom:123456'
 curl http://localhost:8080/hello --user 'James:password'
