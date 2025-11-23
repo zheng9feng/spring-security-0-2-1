@@ -71,9 +71,10 @@ curl --url 'http://localhost:8080/hello' --header 'Authorization: Basic <base64-
 从数据库中检索用户信息进行认证的示例项目。
 
 数据库配置
+
 ```sql
 -- DDL
-CREATE TABLE IF NOT EXISTS users
+CREATE TABLE IF NOT EXISTS t_user
 (
     id       INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(255) NOT NULL UNIQUE,
@@ -82,7 +83,7 @@ CREATE TABLE IF NOT EXISTS users
 );
 
 -- DML
-insert into users (id, username, email, password)
+insert into t_user (id, username, email, password)
 values (null, 'Tom', 'tom@mail.org', '{noop}123456'),
        (null, 'James', 'james@mail.org', '{bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG');
 ```
