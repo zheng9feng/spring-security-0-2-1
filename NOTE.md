@@ -275,6 +275,73 @@ ORM: Spring Data JPA
 
 DB: MySQL 8
 
+##### 聚合应用中的User实体类，并实现`org.springframework.security.core.userdetails.UserDetails`
+
+```java
+public class CustomUserDetails implements UserDetails {
+
+    private final User user;
+
+    public CustomUserDetails(User user) {
+        this.user = user;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+
+    @Override
+    public @Nullable String getPassword() {
+        return user.getPassword();
+    }
+
+    @Override
+    public String getUsername() {
+        return user.getUsername();
+    }
+}
+```
+
+##### 实现`org.springframework.security.core.userdetails.UserDetailsService`，使用DAO完成用户查询逻辑
+
+```java
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+
+    private final UserRepository userRepository;
+
+    public CustomUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found with username: " + username);
+        }
+        return new CustomUserDetails(user);
+    }
+}
+```
+
+##### 配置`org.springframework.security.crypto.password.PasswordEncoder`
+
+```java
+@Configuration
+public class UserManagementConfig {
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        // alternatively, you can customize DelegatingPasswordEncoder by yourself to support target encodings
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+}
+```
+
+验证
+
 
 ```sh
 curl http://localhost:8080/hello --user 'Tom:123456'
