@@ -89,3 +89,9 @@ values (null, 'Tom', 'tom@mail.org', '{noop}123456'),
 ```
 
 ### [filter-sample-in-servlet](filter-sample-in-servlet)
+
+Servlet 环境下使用过滤器（Filter）示例项目。
+
+JDK: 1.8
+servlet api 版本：3.1
+tomcat 版本：7.0.47
