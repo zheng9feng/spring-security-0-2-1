@@ -95,3 +95,72 @@ Servlet 环境下使用过滤器（Filter）示例项目。
 JDK: 1.8
 servlet api 版本：3.1
 tomcat 版本：7.0.47
+
+### [jdbc-user-details-manager-sample](jdbc-user-details-manager-sample)
+
+基于 Spring Security 中为 `org.springframework.security.provisioning.JdbcUserDetailsManager` 提供的数据库脚本构建示例项目。
+
+#### 脚本路径
+
+`org/springframework/security/core/userdetails/jdbc/users.ddl`
+
+脚本原始内容（HSQL）
+
+```sql
+create table users
+(
+    username varchar_ignorecase(50) not null primary key,
+    password varchar_ignorecase(500) not null,
+    enabled  boolean not null
+);
+
+create table authorities
+(
+    username  varchar_ignorecase(50) not null,
+    authority varchar_ignorecase(50) not null,
+    constraint fk_authorities_users foreign key (username) references users (username)
+);
+
+create unique index ix_auth_username on authorities (username, authority);
+```
+
+适配MySQL
+
+将`varchar_ignorecase`修改为`varchar`类型。
+
+```sql
+create table if not exists users
+(
+    username varchar(50) not null primary key,
+    password varchar(500) not null,
+    enabled  boolean not null
+);
+
+create table if not exists authorities
+(
+    username  varchar(50) not null,
+    authority varchar(50) not null,
+    constraint fk_authorities_users foreign key (username) references users (username)
+);
+
+create unique index ix_auth_username on authorities (username, authority);
+```
+
+DML
+
+```sql
+insert into users (username, password, enabled)
+values ('Tom', '{noop}123456', true),
+       ('James', '{bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG', true);
+       
+insert into authorities (username, authority)
+values ('Tom', 'ROLE_user'), ('James', 'ROLE_admin');
+```
+
+验证
+
+```sh
+curl http://localhost:8080/hello --user 'Tom:123456'
+curl http://localhost:8080/hello --user 'James:password'
+```
+

@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: jdbc-user-details-manager-sample
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/spring-security-0-2-1
+    username: root
+    password: root
