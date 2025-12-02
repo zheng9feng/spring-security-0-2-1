@@ -197,7 +197,204 @@ public interface UserDetailsManager extends UserDetailsService {
 }
 ```
 
+### AuthenticationManager
 
+```java
+package org.springframework.security.authentication;
+
+@FunctionalInterface
+public interface AuthenticationManager {
+
+	/**
+	 * Attempts to authenticate the passed {@link Authentication} object, returning a
+	 * fully populated <code>Authentication</code> object (including granted authorities)
+	 * if successful.
+	 * <p>
+	 * An <code>AuthenticationManager</code> must honour the following contract concerning
+	 * exceptions:
+	 * <ul>
+	 * <li>A {@link DisabledException} must be thrown if an account is disabled and the
+	 * <code>AuthenticationManager</code> can test for this state.</li>
+	 * <li>A {@link LockedException} must be thrown if an account is locked and the
+	 * <code>AuthenticationManager</code> can test for account locking.</li>
+	 * <li>A {@link BadCredentialsException} must be thrown if incorrect credentials are
+	 * presented. Whilst the above exceptions are optional, an
+	 * <code>AuthenticationManager</code> must <B>always</B> test credentials.</li>
+	 * </ul>
+	 * Exceptions should be tested for and if applicable thrown in the order expressed
+	 * above (i.e. if an account is disabled or locked, the authentication request is
+	 * immediately rejected and the credentials testing process is not performed). This
+	 * prevents credentials being tested against disabled or locked accounts.
+	 * @param authentication the authentication request object
+	 * @return a fully authenticated object including credentials
+	 * @throws AuthenticationException if authentication fails
+	 */
+	Authentication authenticate(Authentication authentication) throws AuthenticationException;
+
+}
+```
+
+### Authentication
+
+```java
+package org.springframework.security.core;
+
+public interface Authentication extends Principal, Serializable {
+
+	/**
+	 * Set by an <code>AuthenticationManager</code> to indicate the authorities that the
+	 * principal has been granted. Note that classes should not rely on this value as
+	 * being valid unless it has been set by a trusted <code>AuthenticationManager</code>.
+	 * <p>
+	 * Implementations should ensure that modifications to the returned collection array
+	 * do not affect the state of the Authentication object, or use an unmodifiable
+	 * instance.
+	 * </p>
+	 * @return the authorities granted to the principal, or an empty collection if the
+	 * token has not been authenticated. Never null.
+	 */
+	Collection<? extends GrantedAuthority> getAuthorities();
+
+	/**
+	 * The credentials that prove the principal is correct. This is usually a password,
+	 * but could be anything relevant to the <code>AuthenticationManager</code>. Callers
+	 * are expected to populate the credentials.
+	 * @return the credentials that prove the identity of the <code>Principal</code>
+	 */
+	Object getCredentials();
+
+	/**
+	 * Stores additional details about the authentication request. These might be an IP
+	 * address, certificate serial number etc.
+	 * @return additional details about the authentication request, or <code>null</code>
+	 * if not used
+	 */
+	Object getDetails();
+
+	/**
+	 * The identity of the principal being authenticated. In the case of an authentication
+	 * request with username and password, this would be the username. Callers are
+	 * expected to populate the principal for an authentication request.
+	 * <p>
+	 * The <tt>AuthenticationManager</tt> implementation will often return an
+	 * <tt>Authentication</tt> containing richer information as the principal for use by
+	 * the application. Many of the authentication providers will create a
+	 * {@code UserDetails} object as the principal.
+	 * @return the <code>Principal</code> being authenticated or the authenticated
+	 * principal after authentication.
+	 */
+	Object getPrincipal();
+
+	/**
+	 * Used to indicate to {@code AbstractSecurityInterceptor} whether it should present
+	 * the authentication token to the <code>AuthenticationManager</code>. Typically an
+	 * <code>AuthenticationManager</code> (or, more often, one of its
+	 * <code>AuthenticationProvider</code>s) will return an immutable authentication token
+	 * after successful authentication, in which case that token can safely return
+	 * <code>true</code> to this method. Returning <code>true</code> will improve
+	 * performance, as calling the <code>AuthenticationManager</code> for every request
+	 * will no longer be necessary.
+	 * <p>
+	 * For security reasons, implementations of this interface should be very careful
+	 * about returning <code>true</code> from this method unless they are either
+	 * immutable, or have some way of ensuring the properties have not been changed since
+	 * original creation.
+	 * @return true if the token has been authenticated and the
+	 * <code>AbstractSecurityInterceptor</code> does not need to present the token to the
+	 * <code>AuthenticationManager</code> again for re-authentication.
+	 */
+	boolean isAuthenticated();
+
+	/**
+	 * See {@link #isAuthenticated()} for a full description.
+	 * <p>
+	 * Implementations should <b>always</b> allow this method to be called with a
+	 * <code>false</code> parameter, as this is used by various classes to specify the
+	 * authentication token should not be trusted. If an implementation wishes to reject
+	 * an invocation with a <code>true</code> parameter (which would indicate the
+	 * authentication token is trusted - a potential security risk) the implementation
+	 * should throw an {@link IllegalArgumentException}.
+	 * @param isAuthenticated <code>true</code> if the token should be trusted (which may
+	 * result in an exception) or <code>false</code> if the token should not be trusted
+	 * @throws IllegalArgumentException if an attempt to make the authentication token
+	 * trusted (by passing <code>true</code> as the argument) is rejected due to the
+	 * implementation being immutable or implementing its own alternative approach to
+	 * {@link #isAuthenticated()}
+	 */
+	void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException;
+
+}
+```
+
+### AuthenticationProvider
+
+```java
+package org.springframework.security.authentication;
+
+public interface AuthenticationProvider {
+
+	/**
+	 * Performs authentication with the same contract as
+	 * {@link org.springframework.security.authentication.AuthenticationManager#authenticate(Authentication)}
+	 * .
+	 * @param authentication the authentication request object.
+	 * @return a fully authenticated object including credentials. May return
+	 * <code>null</code> if the <code>AuthenticationProvider</code> is unable to support
+	 * authentication of the passed <code>Authentication</code> object. In such a case,
+	 * the next <code>AuthenticationProvider</code> that supports the presented
+	 * <code>Authentication</code> class will be tried.
+	 * @throws AuthenticationException if authentication fails.
+	 */
+	Authentication authenticate(Authentication authentication) throws AuthenticationException;
+
+	/**
+	 * Returns <code>true</code> if this <Code>AuthenticationProvider</code> supports the
+	 * indicated <Code>Authentication</code> object.
+	 * <p>
+	 * Returning <code>true</code> does not guarantee an
+	 * <code>AuthenticationProvider</code> will be able to authenticate the presented
+	 * <code>Authentication</code> object. It simply indicates it can support closer
+	 * evaluation of it. An <code>AuthenticationProvider</code> can still return
+	 * <code>null</code> from the {@link #authenticate(Authentication)} method to indicate
+	 * another <code>AuthenticationProvider</code> should be tried.
+	 * </p>
+	 * <p>
+	 * Selection of an <code>AuthenticationProvider</code> capable of performing
+	 * authentication is conducted at runtime the <code>ProviderManager</code>.
+	 * </p>
+	 * @param authentication
+	 * @return <code>true</code> if the implementation can more closely evaluate the
+	 * <code>Authentication</code> class presented
+	 */
+	boolean supports(Class<?> authentication);
+
+}
+```
+
+### SecurityContext
+
+```java
+package org.springframework.security.core.context;
+
+public interface SecurityContext extends Serializable {
+
+	/**
+	 * Obtains the currently authenticated principal, or an authentication request token.
+	 * @return the <code>Authentication</code> or <code>null</code> if no authentication
+	 * information is available
+	 */
+	Authentication getAuthentication();
+
+	/**
+	 * Changes the currently authenticated principal, or removes the authentication
+	 * information.
+	 * @param authentication the new <code>Authentication</code> token, or
+	 * <code>null</code> if no further authentication information should be stored
+	 */
+	void setAuthentication(Authentication authentication);
+
+}
+```
 
 ## 集成Spring Security后的默认状态
 
@@ -347,3 +544,4 @@ public class UserManagementConfig {
 curl http://localhost:8080/hello --user 'Tom:123456'
 curl http://localhost:8080/hello --user 'James:password'
 ```
+
